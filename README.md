@@ -1,6 +1,4 @@
-Here’s a clean, professional **GitHub README-style project description** for your **Vein Detection System**:
 
----
 
 ## 🩸 Vein Detection System – OpenCV Based
 
