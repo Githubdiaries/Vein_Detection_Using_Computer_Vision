@@ -1,15 +1,8 @@
 import cv2
 import numpy as np
-import os
 
 # -----------------------------
-# 🔹 Step 0: Create screenshots folder if not exists
-# -----------------------------
-if not os.path.exists("screenshots"):
-    os.makedirs("screenshots")
-
-# -----------------------------
-# 🔹 Step 1: Read frame from camera
+# 🔹 Step 1: Read Frame from Camera
 # -----------------------------
 def get_camera_frame(cap):
     ret, frame = cap.read()
@@ -48,25 +41,20 @@ def wide_kernel_filter(frame):
     return filtered
 
 # -----------------------------
-# 🔹 Step 5: Real-time vein detection
+# 🔹 Step 5: Real-time Vein Pipeline
 # -----------------------------
 def real_time_vein_detection():
-    # Try USB/webcam first
-    cap = cv2.VideoCapture(0)  
+    cap = cv2.VideoCapture("http://192.168.1.6:4747/video")
+
+ # default camera (laptop/phone webcam)
     if not cap.isOpened():
-        print("USB/Webcam not found, trying DroidCam Wi-Fi...")
-        cap = cv2.VideoCapture("http://192.168.1.6:4747/video")
-        if not cap.isOpened():
-            print("Error: Cannot access camera")
-            return
-        else:
-            print("Camera opened successfully!")
-    else:
-        print("Camera opened successfully!")
+        print("Error: Cannot access camera")
+        return
 
-    print("Press 's' to save screenshot, 'q' to exit.")
+    print("Press 'q' to exit the real-time vein detection.")
 
-    frame_count = 0
+    frame_count = 0  # Initialize frame counter
+
     while True:
         frame = get_camera_frame(cap)
         if frame is None:
@@ -76,24 +64,25 @@ def real_time_vein_detection():
         multi_scale = multi_scale_detect(enhanced)
         final_result = wide_kernel_filter(multi_scale)
 
-        # Side-by-side display
+        # Show original and processed side by side
         combined_display = np.hstack((frame, final_result))
         cv2.imshow("Vein Detection (Original | Processed)", combined_display)
 
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('s'):
-            save_path = os.path.join(os.getcwd(), "screenshots", f"vein_{frame_count}.png")
-            cv2.imwrite(save_path, final_result)
+        # ---------------- Screenshot on 's' key ----------------
+        if cv2.waitKey(1) & 0xFF == ord('s'):
+            cv2.imwrite(f"screenshots/vein_{frame_count}.png", final_result)
             frame_count += 1
-            print(f"Saved screenshot at: {save_path}")
-        elif key == ord('q'):
+            print(f"Saved screenshot {frame_count}!")
+            
+        # Exit on 'q'
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     cap.release()
     cv2.destroyAllWindows()
 
 # -----------------------------
-# 🔹 Step 6: Run
+# 🔹 Example Usage
 # -----------------------------
 if __name__ == "__main__":
     real_time_vein_detection()
