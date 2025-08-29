@@ -1,0 +1,30 @@
+import cv2
+import numpy as np
+
+# Load image
+img = cv2.imread("C:/Users/aksas/OneDrive/Desktop/vein_test.jpg")
+
+if img is None:
+    print("❌ Could not load image.")
+    exit()
+
+# Resize (optional): Make it larger to view details better
+img = cv2.resize(img, (600, 800))
+
+# Convert to grayscale
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Apply CLAHE to enhance contrast
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+enhanced = clahe.apply(gray)
+
+# Smooth the image
+blurred = cv2.GaussianBlur(enhanced, (5, 5), 0)
+
+# Edge detection
+edges = cv2.Canny(blurred, 10, 40)
+
+# Show output
+cv2.imshow("Enhanced Vein Detection", edges)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
